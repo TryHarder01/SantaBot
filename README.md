@@ -8,6 +8,7 @@ A sentient slack bot will take in users name, department, three things they like
 The responses will be inserted into a DynamoDB.
 
 A Python brute force method will pair up people with the following conditions:
+
 1. no one will give to someone in the same department
 2. no on will give to someone who is giving to them
 3. (obviously) no one will give to themselves
