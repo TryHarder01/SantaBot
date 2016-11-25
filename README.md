@@ -15,9 +15,9 @@ A Python brute force method will pair up people with the following conditions:
 Santabot will inform users of their match and the information about them. Users will then be able to direct message the Santabot at any time to hear it again. The lookup will key off the userID from slack, therefore it is impossible for anyone to return gifting information about anyone else.
 
 ## Technologies:
--Slack API
--Python backend
--AWS DynamoDB 
+* Slack API
+* Python backend
+* AWS DynamoDB 
 
 ## Roadmap:
 * Slack bot conversation strings / logic
