@@ -5,7 +5,7 @@ class talker:
     dept_options = []
     answers = {}
     progress = {'U34V2A6QN':{'intro' : 0 , 'dept' : [0,0] , 'likes': 0 , 'dislikes' : 0,
-                             'confirm': {'first': 0, 'likes': [0,0], 'dislikes':[0,0]}, 'success':0,'followups':0} }
+                             'confirm': {'first': 0, 'likes': [0,0], 'dislikes':[0,0], 'repeat':0}, 'success':0,'followups':0} }
 
     def __init__(self, sc, userdict, dept_options):
         self.people = userdict
@@ -52,20 +52,21 @@ class talker:
         return result
 
     def ask_likes(self, userid):
-        response = "In three separate messages, send me three things you like. For instance, I like: \ninterpreted languages\npelicans\npeeled potatoes.\n\nWhat's your first?"
+        response = "In three separate messages, send me three things you like. For instance, I like: \ninterpreted languages\npelicans\npeeled potatoes.\n\nWhat are three things you *likes*?"
         print(self.sc.api_call("chat.postMessage", as_user="true:", channel=userid, text=response))
 
     def get_likes(self, userid, text):
         self.answers[userid]['likes'] = self.answers[userid].get('likes', [])
         print(self.answers[userid]['likes'])
         print('in likes')
+        print(len(text), text, type(text))
 
 
         self.answers[userid]['likes'].append(text)
         print('appended')
 
         if len(self.answers[userid]['likes']) == 3:
-            response = 'Ok you like: {} {} and {}'.format(self.answers[userid]['likes'][0], self.answers[userid]['likes'][1], self.answers[userid]['likes'][1])
+            response = 'Ok you like: {} {} and {}'.format(self.answers[userid]['likes'][0], self.answers[userid]['likes'][1], self.answers[userid]['likes'][2])
             print(self.sc.api_call("chat.postMessage", as_user="true:", channel=userid, text=response))
             return 1
 
@@ -74,7 +75,7 @@ class talker:
 
 
     def ask_dislikes(self, userid):
-        response = "In three seperate messages, send me three things you do *not* like. For instance, I do *not* like: \nbaths\nplaying board games\niambic pentameter.\n\nWhat's one thing you don't like?"
+        response = "In three separate messages, send me three things you do *not* like. For instance, I do *not* like: \nbaths\nplaying board games\niambic pentameter.\n\nWhat are three things you *dislike*?"
         print(self.sc.api_call("chat.postMessage", as_user="true:", channel=userid,  text=response))
 
     def get_dislikes(self, userid, text):
@@ -86,8 +87,7 @@ class talker:
         print('appended')
 
         if len(self.answers[userid]['dislikes']) == 3:
-            response = 'Ok you don\'t like: {} {} and {}'.format(self.answers[userid]['dislikes'][0], self.answers[userid]['dislikes'][1],
-                                                 self.answers[userid]['dislikes'][1])
+            response = 'Ok you don\'t like: {} {} and {}'.format(self.answers[userid]['dislikes'][0], self.answers[userid]['dislikes'][1],self.answers[userid]['dislikes'][2])
             print(self.sc.api_call("chat.postMessage", as_user="true:", channel=userid, text=response))
             return 1
 
@@ -112,8 +112,8 @@ class talker:
             print('success')
             return 1
         else:
-
-            print('Do you want to change your likes?')
+            #print('Do you want to change your likes?')
+            return 0 #this might be really wrong
             #edit_likes = input()
 
 
@@ -123,7 +123,8 @@ class talker:
         return 1
 
     def get_confirm_likes(self, userid, text):
-        if text.lower().strip() == 'no':
+        user = userid
+        if text.lower().strip() == 'yes':
             return 1
         else:
             return 0
@@ -151,6 +152,7 @@ class talker:
 
     def action(self, userid, text):
         print(self.progress)
+        print(self.answers)
         if self.progress[userid]['intro'] == 0:
             self.intro(userid)
             self.progress[userid]['intro'] =  1
@@ -169,24 +171,23 @@ class talker:
             self.ask_likes(userid)
             return
 
-        elif self.progress[userid]['likes'] == 0:
+        elif self.progress[userid]['likes'] == 0 and self.progress[userid]['confirm']['first'] == 0:
+            # the confirm first 1 means they are going through confirm path
+            # handling that under the confirm code block
             response = self.get_likes(userid, text)
             self.progress[userid]['likes'] = response
-            if response == 1 and self.progress[userid]['dislikes'] == 0:
+            if response == 1:
                 self.ask_dislikes(userid)
-            elif response == 1 and self.progress[userid]['dislikes'] == 1:
-                # sent back from confirmation question
-                pass
             return
 
-
-#dislikes and prompt confirmation readout
-
-        elif self.progress[userid]['dislikes'] == 0:
+        elif self.progress[userid]['dislikes'] == 0 and self.progress[userid]['confirm']['first'] == 0:
+            # the confirm first 1 means they are going through confirm path
+            # handling that under the confirm code block
             response = self.get_dislikes(userid, text)
             self.progress[userid]['dislikes'] = response
             if response == 1:
                 self.ask_confirmation(userid)
+                self.progress[userid]['confirm']['first'] = 1
             else:
                 pass
             return
@@ -194,44 +195,78 @@ class talker:
 #get confirmation done if 'yes'
 # thinking about if no
 
-        elif self.progress[userid]['confirm']['first'] == 0:
-            self.progress[userid]['confirm']['first'] = 1
-
-            #first time through after asking confirmation
+        elif self.progress[userid]['confirm']['dislikes'][0] == 0 and self.progress[userid]['confirm']['likes'][0] == 0 and self.progress[userid]['success'] == 0 and self.progress[userid]['confirm']['first'] == 1:
+            #catching any time asked confirmation prompt
             result  = self.get_confirmation(userid, text)
             if result == 1:
+                #respondes "confirmed"
                 self.progress[userid]['success']= self.success(userid)
             else:
+                # responds "no" send to likes prompt
                 self.progress[userid]['confirm']['likes'][0] = self.ask_confirm_likes(userid)
 
-        elif self.progress[userid]['confirm']['first'] == 1 and self.progress[userid]['success'] == 0:
+
+
+        elif self.progress[userid]['confirm']['first'] == 1 and self.progress[userid]['confirm']['likes'][0] == 1 and self.progress[userid]['success'] == 0 and self.progress[userid]['confirm']['dislikes'][0] == 0:
             #asked about likes, catching response
-            result = self.get_confirm_likes(userid, text)
-            #
-            #second time through after asking confirmation
-            if result == 1:
-                #if 1 means they want to change likes
-                self.ask_likes(userid)
-                #catch up at likes
+            if self.progress[userid]['confirm']['likes'][1] == 0:
+                # [ 1 , 0 ] means, asked but not answer caught yet
+                #confirm = no; will get 1 for change likes, 2 for no.
+                get_confirm_likes_response = self.get_confirm_likes(userid, text)
+                #print(get_confirm_likes_response)
+                #time.sleep(1)
+                if get_confirm_likes_response == 1:
+                    self.ask_likes(userid)
+                    self.answers[userid]['likes'] = []  # erasing likes
+                    self.progress[userid]['confirm']['likes'][1] = get_confirm_likes_response
+                    self.progress[userid]['likes'] = 0
+                elif get_confirm_likes_response == 0:
+                    # means "dont want to change likes"
+                    self.ask_confirm_dislikes(userid)
+                    self.progress[userid]['confirm']['likes'] = [0,0]
+                    self.progress[userid]['confirm']['dislikes'][0] = 1
 
-                self.progress[userid]['confirm']['likes'][1]= self.ask_confirm_dislikes(user)
-            else:
-                self.progress[userid]['confirm']['likes'][0] = 0
+            elif self.progress[userid]['confirm']['likes'][1] == 1:
+                # responded 'yes' sending new likes
+                get_likes_response = self.get_likes(userid, text)
+                self.progress[userid]['likes'] = get_likes_response
+                if get_likes_response == 1:
+                    self.ask_confirm_dislikes(userid)
+                    self.progress[userid]['likes'] = 1
+                    self.progress[userid]['confirm']['likes'] = [0,0] # reseting likes confirmation
+                    self.progress[userid]['confirm']['dislikes'][0] = 1
 
 
-        elif self.progress[userid]['success'] == 5:
-            result = self.get_confirmation(userid)
-            # return 1 if yes, 0 if no
-            self.progress[userid]['confirm'] = result
-            if result == 0:
-                self.progress[userid]['likes'] = self.ask_confirm_dislikes()
-                # turns to 0 if user asks to reset likes
-            #else...return
 
-        elif self.progress[userid]['success'] == 1:
-            self.progress[userid]['followups'] += 1
-            if self.progress[userid]['followups'] % 5 == 0:
-                self.success(userid)
-            else:
-                pass
+        # make code block for fixing dislikes
+        elif self.progress[userid]['confirm']['first'] == 1 and self.progress[userid]['confirm']['dislikes'][0] == 1 and self.progress[userid]['success'] == 0:
+            #asked about dislikes, catching response
+            # asked about dislikes, catching response
+            if self.progress[userid]['confirm']['dislikes'][1] == 0:
+                # [ 1 , 0 ] means, asked but not answer caught yet
+                # confirm = no; will get 1 for change likes, 2 for no.
+                get_confirm_dislikes_response = self.get_confirm_dislikes(userid, text)
+                # print(get_confirm_likes_response)
+                # time.sleep(1)
+                if get_confirm_dislikes_response == 1:
+                    self.ask_dislikes(userid)
+                    self.answers[userid]['dislikes'] = []  # erasing dislikes
+                    self.progress[userid]['confirm']['dislikes'][1] = get_confirm_dislikes_response
+                    self.progress[userid]['dislikes'] = 0
+                elif get_confirm_dislikes_response == 0:
+                    # means "dont want to change likes"
+                    self.ask_confirmation(userid)
+                    self.progress[userid]['confirm']['dislikes'] = [0,0] #reseting likes and send to confirmation
+
+            elif self.progress[userid]['confirm']['dislikes'][1] == 1:
+                # responded 'yes' sending new dislikes
+                get_dislikes_response = self.get_dislikes(userid, text)
+                self.progress[userid]['dislikes'] = get_dislikes_response
+                if get_dislikes_response == 1:
+                    self.ask_confirmation(userid)
+                    self.progress[userid]['dislikes'] = 1
+                    self.progress[userid]['confirm']['dislikes'] = [0, 0]  # reseting dislikes confirmation
+
+        print('end')
+        print(self.progress)
 
