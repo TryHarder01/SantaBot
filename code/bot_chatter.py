@@ -40,16 +40,18 @@ class talker:
         #print(self.dept_options)
 
     def process_dept_response(self, userid, text):
-        if text in self.dept_options:
+        dept_matched = 0
+        for dept in self.dept_options:
+            if dept.lower() == text.lower().strip():
+                dept_matched = 1
+        if dept_matched == 1:
             response = "Ok, *{}*, got it. Let's get to the good stuff.".format(text)
             self.answers[userid]['dept'] = text
-            result = 1
         else:
-            response = "Not on my list. Here's the departments you can choose from. Where should I put you?" #add all departments
-            result = 0
+            response = "Not on my list, sorry. Please spell your department *exactly* as it appears on my list." #add all departments
 
         print(self.sc.api_call("chat.postMessage", as_user="true:", channel=userid,  text=response))
-        return result
+        return dept_matched
 
     def ask_likes(self, userid):
         response = "In three separate messages, send me three things you like. For instance, I like: \ninterpreted languages\npelicans\npeeled potatoes.\n\nWhat are three things you *likes*?"
@@ -166,9 +168,12 @@ class talker:
             return
 
         elif self.progress[userid]['dept'][1] == 0:
-            self.progress[userid]['dept'][1] =self.process_dept_response(userid, text)
-            print('confirmed dept')
-            self.ask_likes(userid)
+            dept_response =self.process_dept_response(userid, text)
+            self.progress[userid]['dept'][1] = dept_response
+            if dept_response == 1:
+                self.ask_likes(userid)
+            else:
+                self.ask_dept(userid)
             return
 
         elif self.progress[userid]['likes'] == 0 and self.progress[userid]['confirm']['first'] == 0:
