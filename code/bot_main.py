@@ -39,22 +39,3 @@ if sc.rtm_connect():
         time.sleep(1)
 else:
     print("Connection Failed, invalid token?")
-
-"""
-# didn't confirm, needs to be asked about likes
-                # result will be 1 if asked to change likes, 0 if no
-
-"""
-"""
-if self.progress[userid]['likes'] == 0:
-
-
-elif self.progress[userid]['success'] == 15:
-   #if 1 means they want to change likes
-   print('here, now what')
-   # now next 3 times i need to process them
-   self.progress[userid]['confirm']['likes'][1]= self.ask_confirm_dislikes(userid)
-else:
-   print('here in else')
-   #self.progress[userid]['confirm']['likes'][0] = 0
-   """
