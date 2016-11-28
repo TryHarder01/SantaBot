@@ -32,8 +32,9 @@ if sc.rtm_connect():
             user = firehose[0].get('user')
             if channel and text and user and (user != BOT_ID):
                 # making sure I'm not reacting to my own msgs
-                print(channel, text, user )
+                #print(channel, text, user )
                 if channel.startswith('D'):
+                    pass
                     # "D" for direct message
                     santabot.action(user, text)
         time.sleep(1)

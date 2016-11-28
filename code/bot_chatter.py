@@ -1,9 +1,11 @@
 import time
 
-class talker:
-    people = {}
-    dept_options = []
+class talker(object):
+    #people = {}
+    #dept_options = []
     answers = {}
+
+
     progress = {'U34V2A6QN':{'intro' : 0 , 'dept' : [0,0] , 'likes': 0 , 'dislikes' : 0,
                              'confirm': {'first': 0, 'likes': [0,0], 'dislikes':[0,0], 'repeat':0}, 'success':0,'followups':0} }
 
@@ -11,7 +13,7 @@ class talker:
         self.people = userdict
         self.sc = sc
         self.dept_options = dept_options
-        #print(self.dept_options)
+        #print(self.people)
 
     def intro(self, userid):
         self.answers[userid] = {}
@@ -60,12 +62,12 @@ class talker:
     def get_likes(self, userid, text):
         self.answers[userid]['likes'] = self.answers[userid].get('likes', [])
         print(self.answers[userid]['likes'])
-        print('in likes')
-        print(len(text), text, type(text))
+        #print('in likes')
+        #print(len(text), text, type(text))
 
 
         self.answers[userid]['likes'].append(text)
-        print('appended')
+        #print('appended')
 
         if len(self.answers[userid]['likes']) == 3:
             response = 'Ok you like: {} {} and {}'.format(self.answers[userid]['likes'][0], self.answers[userid]['likes'][1], self.answers[userid]['likes'][2])
@@ -83,10 +85,10 @@ class talker:
     def get_dislikes(self, userid, text):
         self.answers[userid]['dislikes'] = self.answers[userid].get('dislikes', [])
         print(self.answers[userid]['dislikes'])
-        print('in dislikes')
+        #print('in dislikes')
 
         self.answers[userid]['dislikes'].append(text)
-        print('appended')
+        #print('appended')
 
         if len(self.answers[userid]['dislikes']) == 3:
             response = 'Ok you don\'t like: {} {} and {}'.format(self.answers[userid]['dislikes'][0], self.answers[userid]['dislikes'][1],self.answers[userid]['dislikes'][2])
@@ -97,7 +99,8 @@ class talker:
             return 0
 
     def get_details(self, userid):
-        print(self.answers[userid])
+        pass
+        #print(self.answers[userid])
 
     def ask_confirmation(self,userid):
         response = 'Is this correct:\nDept: {} \nLike 1:{}\nLike 2: {}\nLike 3: {}\nDislike 1: {}\nDislike 2: {}\nDislike 3: {}\n\n  _yes or no_ ?'.format(self.answers[userid]['dept'],
@@ -111,7 +114,7 @@ class talker:
 
     def get_confirmation(self, userid, text):
         if text.lower().strip() == 'yes':
-            print('success')
+            #print('success')
             return 1
         else:
             #print('Do you want to change your likes?')
@@ -153,18 +156,18 @@ class talker:
 
 
     def action(self, userid, text):
-        print(self.progress)
-        print(self.answers)
+        #print(self.progress)
+        #print(self.answers)
         if self.progress[userid]['intro'] == 0:
             self.intro(userid)
             self.progress[userid]['intro'] =  1
-            print('intro complete')
+            #print('intro complete')
             return
 
         elif self.progress[userid]['dept'][0] == 0:
             self.ask_dept(userid)
             self.progress[userid]['dept'][0] = 1
-            print('asked dept')
+            #print('asked dept')
             return
 
         elif self.progress[userid]['dept'][1] == 0:
@@ -272,6 +275,6 @@ class talker:
                     self.progress[userid]['dislikes'] = 1
                     self.progress[userid]['confirm']['dislikes'] = [0, 0]  # reseting dislikes confirmation
 
-        print('end')
-        print(self.progress)
+        #print('end')
+        #print(self.progress)
 

@@ -12,7 +12,7 @@ def name_to_id(sc):
         'first_name': user['profile']['first_name'],
         'last_name': user['profile']['last_name'],
         'id': user['id']}
-        return userdict
+    return userdict
 
 
 def id_to_name(sc):
@@ -29,4 +29,4 @@ def id_to_name(sc):
         'first_name': user['profile']['first_name'],
         'last_name': user['profile']['last_name'],
         'name': user['name']}
-        return userdict
+    return userdict
