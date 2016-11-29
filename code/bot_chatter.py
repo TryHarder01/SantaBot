@@ -6,13 +6,17 @@ class talker(object):
     answers = {}
 
 
-    progress = {'U34V2A6QN':{'intro' : 0 , 'dept' : [0,0] , 'likes': 0 , 'dislikes' : 0,
-                             'confirm': {'first': 0, 'likes': [0,0], 'dislikes':[0,0], 'repeat':0}, 'success':0,'followups':0} }
 
     def __init__(self, sc, userdict, dept_options):
         self.people = userdict
         self.sc = sc
         self.dept_options = dept_options
+        self.progress = {}
+        for id in userdict.keys():
+            self.progress[id] = {'intro': 0, 'dept': [0, 0], 'likes': 0, 'dislikes': 0,
+                            'confirm': {'first': 0, 'likes': [0, 0], 'dislikes': [0, 0], 'repeat': 0}, 'success': 0,
+                            'followups': 0}
+
         #print(self.people)
 
     def intro(self, userid):

@@ -15,7 +15,7 @@ dept_options.sort()
 
 santabot = talker(sc, id_dict, dept_options)
 
-
+#print(name_dict)
 #botid U3501E2T1
 
 READ_WEBSOCKET_DELAY = 1
@@ -40,3 +40,9 @@ if sc.rtm_connect():
         time.sleep(1)
 else:
     print("Connection Failed, invalid token?")
+
+
+"""
+    progress = {'U36NJ0EMN':{'intro' : 0 , 'dept' : [0,0] , 'likes': 0 , 'dislikes' : 0,
+                             'confirm': {'first': 0, 'likes': [0,0], 'dislikes':[0,0], 'repeat':0}, 'success':0,'followups':0} }
+"""
